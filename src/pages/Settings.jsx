@@ -1,9 +1,8 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { Eye, EyeOff, RefreshCw } from 'lucide-react';
 import AppShell from '../components/layout/AppShell';
-import { COMPANIES } from '../data/mockData';
 import { useApp } from '../context/AppContext';
+import { api } from '../utils/api';
 
 function Toggle({ defaultOn = false }) {
   const [on, setOn] = useState(defaultOn);
@@ -19,31 +18,55 @@ function Toggle({ defaultOn = false }) {
 
 export default function Settings() {
   const { user, apiVisible, setApiVisible, showModal } = useApp();
-  const u = user || COMPANIES[0];
+  const [profile, setProfile] = useState(null);
+
+  useEffect(() => {
+    api('GET', '/api/settings/profile')
+      .then(setProfile)
+      .catch(() => {});
+  }, []);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    try {
+      await api('PUT', '/api/settings/profile', {
+        name: fd.get('name'),
+        email: fd.get('email'),
+        ice: fd.get('ice'),
+        phone: fd.get('phone'),
+      });
+      showModal('Info', 'Profil mis à jour');
+    } catch (err) {
+      showModal('Erreur', err.message);
+    }
+  };
+
+  const u = profile || user || { name: '', email: '', ice: '', plan: 'Starter' };
 
   return (
     <AppShell title="Paramètres">
       <section className="settings-section card">
         <h3>Profil société</h3>
-        <form onSubmit={(e) => { e.preventDefault(); showModal('Info', 'Profil mis à jour'); }}>
+        <form onSubmit={handleSubmit}>
           <section className="form-row">
             <p className="form-group">
               <label htmlFor="s-name">Nom</label>
-              <input id="s-name" defaultValue={u.name} />
+              <input id="s-name" name="name" defaultValue={u.name} />
             </p>
             <p className="form-group">
               <label htmlFor="s-ice">ICE</label>
-              <input id="s-ice" defaultValue={u.ice} />
+              <input id="s-ice" name="ice" defaultValue={u.ice} />
             </p>
           </section>
           <section className="form-row">
             <p className="form-group">
               <label htmlFor="s-email">Email</label>
-              <input id="s-email" type="email" defaultValue={u.email} />
+              <input id="s-email" name="email" type="email" defaultValue={u.email} />
             </p>
             <p className="form-group">
               <label htmlFor="s-phone">Téléphone</label>
-              <input id="s-phone" defaultValue="0522 45 67 89" />
+              <input id="s-phone" name="phone" defaultValue={u.phone || ''} />
             </p>
           </section>
           <p className="form-group">

@@ -8,11 +8,21 @@ export default function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    login(email);
-    navigate('/dashboard');
+    setError('');
+    setLoading(true);
+    try {
+      await login(email, password);
+      navigate('/dashboard');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -44,13 +54,16 @@ export default function Login() {
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
-            <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '.5rem' }}>
-              Se connecter
+            {error && (
+              <p style={{ color: 'var(--red)', fontSize: '.875rem', marginBottom: '.75rem' }}>{error}</p>
+            )}
+            <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '.5rem' }} disabled={loading}>
+              {loading ? 'Connexion...' : 'Se connecter'}
             </button>
           </form>
           <p style={{ textAlign: 'center', marginTop: '1rem', fontSize: '.875rem', color: 'var(--text-muted)' }}>
             Pas encore de compte ?{' '}
-            <Link to="/register" style={{ color: 'var(--teal)', fontWeight: 600 }}>S&apos;inscrire</Link>
+            <Link to="/register" style={{ color: 'var(--teal)', fontWeight: 600 }}>S'inscrire</Link>
           </p>
         </div>
       </div>

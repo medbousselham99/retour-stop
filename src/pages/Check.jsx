@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { AlertTriangle, Search } from 'lucide-react';
+import { AlertTriangle, Search, Loader } from 'lucide-react';
 import AppShell from '../components/layout/AppShell';
 import { useApp } from '../context/AppContext';
 import { badgeClass, scoreColor } from '../utils/helpers';
 
 export default function Check() {
-  const { checkPhone, checkResult, checkClient } = useApp();
+  const { checkPhone, checkResult, checkLoading, checkClient } = useApp();
   const [phone, setPhone] = useState(checkPhone);
   useEffect(() => setPhone(checkPhone), [checkPhone]);
   const r = checkResult;
@@ -31,8 +31,8 @@ export default function Check() {
             onChange={(e) => setPhone(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleCheck()}
           />
-          <button type="button" className="btn btn-primary" onClick={handleCheck}>
-            <Search size={18} /> Vérifier
+          <button type="button" className="btn btn-primary" onClick={handleCheck} disabled={checkLoading}>
+            {checkLoading ? <Loader size={18} className="spin" /> : <Search size={18} />} Vérifier
           </button>
         </div>
         <p style={{ fontSize: '.75rem', color: 'var(--text-muted)' }}>
@@ -40,7 +40,14 @@ export default function Check() {
         </p>
       </div>
 
-      {r && (
+      {checkLoading && (
+        <div className="card" style={{ marginTop: '1.5rem', textAlign: 'center', padding: '2rem' }}>
+          <Loader size={24} className="spin" />
+          <p style={{ marginTop: '.5rem', color: 'var(--text-muted)' }}>Recherche en cours...</p>
+        </div>
+      )}
+
+      {r && !checkLoading && (
         <div className="card" style={{ marginTop: '1.5rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
             <div>
@@ -76,12 +83,12 @@ export default function Check() {
             ))}
           </div>
 
-          {r.timeline.length > 0 ? (
+          {r.timeline && r.timeline.length > 0 ? (
             <>
               <h4 style={{ fontWeight: 600, margin: '1rem 0 .5rem' }}>Historique des incidents</h4>
               <ul className="timeline">
-                {r.timeline.map((t) => (
-                  <li key={`${t.company}-${t.date}`}>
+                {r.timeline.map((t, i) => (
+                  <li key={i}>
                     <span className="dot" />
                     <div>
                       <strong>{t.company}</strong> — {t.date}

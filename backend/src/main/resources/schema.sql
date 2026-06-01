@@ -1,0 +1,54 @@
+CREATE DATABASE IF NOT EXISTS retourstop CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+USE retourstop;
+
+CREATE TABLE IF NOT EXISTS companies (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    ice VARCHAR(255),
+    phone VARCHAR(20),
+    plan VARCHAR(50) DEFAULT 'Starter',
+    api_key VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS clients (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    phone VARCHAR(20) NOT NULL UNIQUE,
+    name VARCHAR(255),
+    score INT DEFAULT 15,
+    level VARCHAR(50) DEFAULT 'FIABLE',
+    orders INT DEFAULT 0,
+    retours INT DEFAULT 0,
+    rate DECIMAL(5,2) DEFAULT 0.00,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS reports (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    company_id BIGINT NOT NULL,
+    client_phone VARCHAR(20) NOT NULL,
+    client_name VARCHAR(255),
+    city VARCHAR(100),
+    incident_date DATE,
+    incident_type VARCHAR(100),
+    value DECIMAL(10,2),
+    notes TEXT,
+    status VARCHAR(50) DEFAULT 'En attente',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (company_id) REFERENCES companies(id)
+);
+
+CREATE TABLE IF NOT EXISTS incident_events (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    client_phone VARCHAR(20) NOT NULL,
+    company_name VARCHAR(255),
+    event_date VARCHAR(20),
+    event_type VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (client_phone) REFERENCES clients(phone)
+);

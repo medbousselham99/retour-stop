@@ -1,14 +1,16 @@
 import { useEffect, useRef } from 'react';
 import { Chart, registerables } from 'chart.js';
-import { CHART_DATA } from '../data/mockData';
 import { useApp } from '../context/AppContext';
 
 Chart.register(...registerables);
 
-export default function RetourChart() {
+export default function RetourChart({ labels, data }) {
   const canvasRef = useRef(null);
   const chartRef = useRef(null);
   const { theme } = useApp();
+
+  const chartLabels = labels || ['S-8', 'S-7', 'S-6', 'S-5', 'S-4', 'S-3', 'S-2', 'S-1'];
+  const chartValues = data || [42, 38, 51, 47, 55, 49, 62, 58];
 
   useEffect(() => {
     const ctx = canvasRef.current;
@@ -20,10 +22,10 @@ export default function RetourChart() {
     chartRef.current = new Chart(ctx, {
       type: 'bar',
       data: {
-        labels: CHART_DATA.labels,
+        labels: chartLabels,
         datasets: [{
           label: 'Retours',
-          data: CHART_DATA.values,
+          data: chartValues,
           backgroundColor: '#dc2626',
           borderRadius: 6,
         }],
@@ -48,7 +50,7 @@ export default function RetourChart() {
     return () => {
       if (chartRef.current) chartRef.current.destroy();
     };
-  }, [theme]);
+  }, [theme, chartLabels, chartValues]);
 
   return <canvas ref={canvasRef} height={120} />;
 }

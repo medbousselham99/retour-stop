@@ -3,6 +3,7 @@ import { Send } from 'lucide-react';
 import AppShell from '../components/layout/AppShell';
 import WilayaSelect from '../components/WilayaSelect';
 import { useApp } from '../context/AppContext';
+import { api } from '../utils/api';
 
 export default function Report() {
   const { showModal } = useApp();
@@ -15,16 +16,33 @@ export default function Report() {
     value: '',
     notes: '',
   });
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((f) => ({ ...f, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    showModal('Signalement envoyé', 'Votre signalement sera validé sous 24h.');
-    setForm({ phone: '', name: '', city: '', date: '', type: '', value: '', notes: '' });
+    setLoading(true);
+    try {
+      await api('POST', '/api/reports', {
+        phone: form.phone,
+        name: form.name,
+        city: form.city,
+        date: form.date,
+        type: form.type,
+        value: form.value ? Number(form.value) : null,
+        notes: form.notes,
+      });
+      showModal('Signalement envoyé', 'Votre signalement sera validé sous 24h.');
+      setForm({ phone: '', name: '', city: '', date: '', type: '', value: '', notes: '' });
+    } catch (err) {
+      showModal('Erreur', err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -60,7 +78,7 @@ export default function Report() {
           </section>
           <section className="form-row">
             <p className="form-group">
-              <label htmlFor="type">Type d&apos;incident *</label>
+              <label htmlFor="type">Type d'incident *</label>
               <select id="type" name="type" required value={form.type} onChange={handleChange}>
                 <option value="">Sélectionner...</option>
                 <option>Refus de livraison</option>
@@ -86,8 +104,8 @@ export default function Report() {
               Preuve de tentative de livraison
             </small>
           </p>
-          <button type="submit" className="btn btn-danger">
-            <Send size={18} /> Soumettre
+          <button type="submit" className="btn btn-danger" disabled={loading}>
+            <Send size={18} /> {loading ? 'Envoi...' : 'Soumettre'}
           </button>
         </form>
       </article>

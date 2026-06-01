@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { COMPANIES, CLIENTS, REPORTS } from '../data/mockData';
+import { api } from '../utils/api';
+import { maskPhone } from '../utils/helpers';
 
 const AppContext = createContext(null);
 
@@ -16,6 +17,7 @@ export function AppProvider({ children }) {
   const [pubMenuOpen, setPubMenuOpen] = useState(false);
   const [checkResult, setCheckResult] = useState(null);
   const [checkPhone, setCheckPhone] = useState('');
+  const [checkLoading, setCheckLoading] = useState(false);
   const [blacklistPage, setBlacklistPage] = useState(1);
   const [blacklistFilter, setBlacklistFilter] = useState({ search: '', level: '', wilaya: '' });
   const [reportsFilter, setReportsFilter] = useState({ from: '', to: '', city: '', type: '' });
@@ -36,28 +38,39 @@ export function AppProvider({ children }) {
     setTheme((t) => (t === 'light' ? 'dark' : 'light'));
   }, []);
 
-  const login = useCallback((email) => {
-    const company = COMPANIES.find((c) => c.email === email) || { ...COMPANIES[0], email };
-    setUser(company);
+  const login = useCallback(async (email, password) => {
+    const data = await api('POST', '/api/auth/login', { email, password });
+    localStorage.setItem('rs_token', data.token);
+    setUser({ name: data.name, email: data.email, ice: data.ice, plan: data.plan });
   }, []);
 
-  const register = useCallback((data) => {
-    setUser({
-      id: 'new',
-      name: data.company,
-      email: data.email,
-      ice: data.ice,
-      plan: 'Starter',
+  const register = useCallback(async (form) => {
+    const data = await api('POST', '/api/auth/register', {
+      company: form.company,
+      email: form.email,
+      password: form.password,
+      ice: form.ice,
+      phone: form.phone,
     });
+    localStorage.setItem('rs_token', data.token);
+    setUser({ name: data.name, email: data.email, ice: data.ice, plan: data.plan });
   }, []);
 
-  const logout = useCallback(() => setUser(null), []);
+  const logout = useCallback(() => {
+    localStorage.removeItem('rs_token');
+    setUser(null);
+  }, []);
 
-  const checkClient = useCallback((phone) => {
+  const checkClient = useCallback(async (phone) => {
     const cleaned = phone.replace(/\s/g, '');
     setCheckPhone(cleaned);
-    setCheckResult(
-      CLIENTS[cleaned] || {
+    setCheckLoading(true);
+    setCheckResult(null);
+    try {
+      const data = await api('GET', `/api/clients/${cleaned}`);
+      setCheckResult(data);
+    } catch {
+      setCheckResult({
         name: 'Client inconnu',
         phone: maskPhone(cleaned),
         score: 15,
@@ -66,28 +79,30 @@ export function AppProvider({ children }) {
         retours: 0,
         rate: 0,
         timeline: [],
-      },
-    );
-  }, []);
-
-  const viewProfile = useCallback(() => {
-    setCheckPhone('0612345678');
-    setCheckResult(CLIENTS['0612345678']);
+      });
+    } finally {
+      setCheckLoading(false);
+    }
   }, []);
 
   const showModal = useCallback((title, text) => setModal({ title, text }), []);
   const closeModal = useCallback(() => setModal(null), []);
 
-  const exportCSV = useCallback(() => {
-    const hdr = 'Date,Téléphone,Ville,Type,Valeur,Statut\n';
-    const rows = REPORTS.map(
-      (r) => `${r.date},${r.phone},${r.city},${r.type},${r.value},${r.status}`,
-    ).join('\n');
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([hdr + rows], { type: 'text/csv' }));
-    a.download = 'retourstop-signalements.csv';
-    a.click();
-    showModal('Info', 'Export CSV téléchargé');
+  const exportCSV = useCallback(async () => {
+    try {
+      const reports = await api('GET', '/api/reports');
+      const hdr = 'Date,Téléphone,Ville,Type,Valeur,Statut\n';
+      const rows = reports.map(
+        (r) => `${r.date},${r.phone},${r.city},${r.type},${r.value},${r.status}`,
+      ).join('\n');
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([hdr + rows], { type: 'text/csv' }));
+      a.download = 'retourstop-signalements.csv';
+      a.click();
+      showModal('Info', 'Export CSV téléchargé');
+    } catch {
+      showModal('Erreur', 'Impossible d\'exporter les données');
+    }
   }, [showModal]);
 
   const value = useMemo(
@@ -98,6 +113,7 @@ export function AppProvider({ children }) {
       pubMenuOpen,
       checkResult,
       checkPhone,
+      checkLoading,
       blacklistPage,
       blacklistFilter,
       reportsFilter,
@@ -114,32 +130,15 @@ export function AppProvider({ children }) {
       register,
       logout,
       checkClient,
-      viewProfile,
       showModal,
       closeModal,
       exportCSV,
     }),
     [
-      user,
-      theme,
-      sidebarOpen,
-      pubMenuOpen,
-      checkResult,
-      checkPhone,
-      blacklistPage,
-      blacklistFilter,
-      reportsFilter,
-      modal,
-      apiVisible,
-      toggleTheme,
-      login,
-      register,
-      logout,
-      checkClient,
-      viewProfile,
-      showModal,
-      closeModal,
-      exportCSV,
+      user, theme, sidebarOpen, pubMenuOpen, checkResult, checkPhone, checkLoading,
+      blacklistPage, blacklistFilter, reportsFilter, modal, apiVisible,
+      toggleTheme, login, register, logout, checkClient,
+      showModal, closeModal, exportCSV,
     ],
   );
 
@@ -150,9 +149,4 @@ export function useApp() {
   const ctx = useContext(AppContext);
   if (!ctx) throw new Error('useApp must be used within AppProvider');
   return ctx;
-}
-
-function maskPhone(phone) {
-  if (!phone) return '';
-  return `${phone.slice(0, 4)}****${phone.slice(-2)}`;
 }

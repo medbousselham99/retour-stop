@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Eye } from 'lucide-react';
 import AppShell from '../components/layout/AppShell';
 import WilayaSelect from '../components/WilayaSelect';
-import { BLACKLIST } from '../data/mockData';
 import { useApp } from '../context/AppContext';
 import { badgeClass } from '../utils/helpers';
+import { api } from '../utils/api';
 
 const PER_PAGE = 5;
 
@@ -20,13 +20,20 @@ export default function Blacklist() {
   } = useApp();
 
   const [localFilter, setLocalFilter] = useState(blacklistFilter);
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  let items = BLACKLIST.filter((b) => {
-    if (localFilter.search && !b.phone.includes(localFilter.search) && !b.name.toLowerCase().includes(localFilter.search.toLowerCase())) return false;
-    if (localFilter.level && b.level !== localFilter.level) return false;
-    if (localFilter.wilaya && b.city !== localFilter.wilaya) return false;
-    return true;
-  });
+  useEffect(() => {
+    setLoading(true);
+    const params = {};
+    if (localFilter.search) params.search = localFilter.search;
+    if (localFilter.level) params.level = localFilter.level;
+    if (localFilter.wilaya) params.wilaya = localFilter.wilaya;
+    api('GET', `/api/blacklist?${new URLSearchParams(params)}`)
+      .then(setItems)
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [blacklistFilter]);
 
   const totalPages = Math.max(1, Math.ceil(items.length / PER_PAGE));
   const page = Math.min(blacklistPage, totalPages);
@@ -46,7 +53,7 @@ export default function Blacklist() {
     <AppShell title="Liste noire">
       <header className="page-header">
         <h2>Liste noire partagée</h2>
-        <p>{BLACKLIST.length} profils signalés sur la plateforme.</p>
+        <p>{loading ? 'Chargement...' : `${items.length} profils signalés sur la plateforme.`}</p>
       </header>
 
       <section className="filters card" style={{ padding: '1rem', marginBottom: '1rem' }}>
@@ -92,6 +99,9 @@ export default function Blacklist() {
             </tr>
           </thead>
           <tbody>
+            {slice.length === 0 && !loading && (
+              <tr><td colSpan={7} style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>Aucun résultat</td></tr>
+            )}
             {slice.map((b) => (
               <tr key={b.id}>
                 <td>{b.name}</td>

@@ -1,16 +1,25 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Download } from 'lucide-react';
 import AppShell from '../components/layout/AppShell';
 import WilayaSelect from '../components/WilayaSelect';
-import { REPORTS } from '../data/mockData';
 import { useApp } from '../context/AppContext';
 import { statusBadgeClass } from '../utils/helpers';
+import { api } from '../utils/api';
 
 export default function MyReports() {
   const { reportsFilter, setReportsFilter, exportCSV } = useApp();
   const [localFilter, setLocalFilter] = useState(reportsFilter);
+  const [reports, setReports] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  let rows = [...REPORTS];
+  useEffect(() => {
+    api('GET', '/api/reports')
+      .then(setReports)
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  let rows = [...reports];
   if (localFilter.city) rows = rows.filter((r) => r.city === localFilter.city);
   if (localFilter.type) rows = rows.filter((r) => r.type.includes(localFilter.type));
 
@@ -21,7 +30,7 @@ export default function MyReports() {
       <header className="page-header" style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
           <h2>Mes signalements</h2>
-          <p>{rows.length} signalements</p>
+          <p>{loading ? 'Chargement...' : `${rows.length} signalements`}</p>
         </div>
         <button type="button" className="btn btn-outline btn-sm" onClick={exportCSV}>
           <Download size={16} /> Exporter CSV
@@ -68,6 +77,9 @@ export default function MyReports() {
             </tr>
           </thead>
           <tbody>
+            {rows.length === 0 && !loading && (
+              <tr><td colSpan={6} style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>Aucun signalement</td></tr>
+            )}
             {rows.map((r) => (
               <tr key={r.id}>
                 <td>{r.date}</td>

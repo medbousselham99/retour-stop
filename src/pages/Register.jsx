@@ -13,15 +13,25 @@ export default function Register() {
     email: '',
     password: '',
   });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    register(form);
-    navigate('/dashboard');
+    setError('');
+    setLoading(true);
+    try {
+      await register(form);
+      navigate('/dashboard');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -52,8 +62,11 @@ export default function Register() {
               <label htmlFor="password">Mot de passe</label>
               <input id="password" name="password" type="password" required minLength={6} value={form.password} onChange={handleChange} />
             </div>
-            <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '.5rem' }}>
-              Créer mon compte
+            {error && (
+              <p style={{ color: 'var(--red)', fontSize: '.875rem', marginBottom: '.75rem' }}>{error}</p>
+            )}
+            <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '.5rem' }} disabled={loading}>
+              {loading ? 'Inscription...' : 'Créer mon compte'}
             </button>
           </form>
           <p style={{ textAlign: 'center', marginTop: '1rem', fontSize: '.875rem', color: 'var(--text-muted)' }}>
