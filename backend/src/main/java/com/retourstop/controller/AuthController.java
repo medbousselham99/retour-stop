@@ -1,6 +1,7 @@
 package com.retourstop.controller;
 
 import com.retourstop.dto.request.LoginRequest;
+import com.retourstop.dto.request.RefreshTokenRequest;
 import com.retourstop.dto.request.RegisterRequest;
 import com.retourstop.dto.response.AuthResponse;
 import com.retourstop.service.AuthService;
@@ -25,5 +26,10 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest req) {
         return ResponseEntity.ok(authService.register(req));
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<AuthResponse> refresh(@Valid @RequestBody RefreshTokenRequest req) {
+        return ResponseEntity.ok(authService.refresh(req));
     }
 }

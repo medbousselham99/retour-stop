@@ -21,13 +21,28 @@ public class JwtUtil {
         this.expirationMs = expirationMs;
     }
 
+    private static final long REFRESH_EXPIRATION_MS = 7 * 24 * 60 * 60 * 1000L;
+
     public String generateToken(Long companyId, String email) {
         Date now = new Date();
         return Jwts.builder()
                 .subject(companyId.toString())
                 .claim("email", email)
+                .claim("type", "access")
                 .issuedAt(now)
                 .expiration(new Date(now.getTime() + expirationMs))
+                .signWith(key)
+                .compact();
+    }
+
+    public String generateRefreshToken(Long companyId, String email) {
+        Date now = new Date();
+        return Jwts.builder()
+                .subject(companyId.toString())
+                .claim("email", email)
+                .claim("type", "refresh")
+                .issuedAt(now)
+                .expiration(new Date(now.getTime() + REFRESH_EXPIRATION_MS))
                 .signWith(key)
                 .compact();
     }

@@ -38,9 +38,13 @@ export function AppProvider({ children }) {
     setTheme((t) => (t === 'light' ? 'dark' : 'light'));
   }, []);
 
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+
   const login = useCallback(async (email, password) => {
     const data = await api('POST', '/api/auth/login', { email, password });
     localStorage.setItem('rs_token', data.token);
+    localStorage.setItem('rs_refresh_token', data.refreshToken);
     setUser({ name: data.name, email: data.email, ice: data.ice, plan: data.plan });
   }, []);
 
@@ -53,11 +57,13 @@ export function AppProvider({ children }) {
       phone: form.phone,
     });
     localStorage.setItem('rs_token', data.token);
+    localStorage.setItem('rs_refresh_token', data.refreshToken);
     setUser({ name: data.name, email: data.email, ice: data.ice, plan: data.plan });
   }, []);
 
   const logout = useCallback(() => {
     localStorage.removeItem('rs_token');
+    localStorage.removeItem('rs_refresh_token');
     setUser(null);
   }, []);
 
@@ -87,6 +93,29 @@ export function AppProvider({ children }) {
 
   const showModal = useCallback((title, text) => setModal({ title, text }), []);
   const closeModal = useCallback(() => setModal(null), []);
+
+  const fetchNotifications = useCallback(async () => {
+    try {
+      const [list, countData] = await Promise.all([
+        api('GET', '/api/notifications'),
+        api('GET', '/api/notifications/count'),
+      ]);
+      setNotifications(list || []);
+      setUnreadCount(countData?.count || 0);
+    } catch {}
+  }, []);
+
+  const markNotificationRead = useCallback(async (id) => {
+    await api('PUT', `/api/notifications/${id}/read`);
+    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
+    setUnreadCount((c) => Math.max(0, c - 1));
+  }, []);
+
+  const markAllNotificationsRead = useCallback(async () => {
+    await api('PUT', '/api/notifications/read-all');
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    setUnreadCount(0);
+  }, []);
 
   const exportCSV = useCallback(async () => {
     try {
@@ -119,6 +148,8 @@ export function AppProvider({ children }) {
       reportsFilter,
       modal,
       apiVisible,
+      notifications,
+      unreadCount,
       setSidebarOpen,
       setPubMenuOpen,
       setBlacklistPage,
@@ -133,12 +164,17 @@ export function AppProvider({ children }) {
       showModal,
       closeModal,
       exportCSV,
+      fetchNotifications,
+      markNotificationRead,
+      markAllNotificationsRead,
     }),
     [
       user, theme, sidebarOpen, pubMenuOpen, checkResult, checkPhone, checkLoading,
       blacklistPage, blacklistFilter, reportsFilter, modal, apiVisible,
+      notifications, unreadCount,
       toggleTheme, login, register, logout, checkClient,
       showModal, closeModal, exportCSV,
+      fetchNotifications, markNotificationRead, markAllNotificationsRead,
     ],
   );
 

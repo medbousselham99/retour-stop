@@ -1,0 +1,11 @@
+package com.retourstop.repository;
+
+import com.retourstop.model.Notification;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+
+public interface NotificationRepository extends JpaRepository<Notification, Long> {
+    List<Notification> findByCompanyIdOrderByCreatedAtDesc(Long companyId);
+    long countByCompanyIdAndReadFalse(Long companyId);
+}

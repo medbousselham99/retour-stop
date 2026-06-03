@@ -2,7 +2,9 @@ package com.retourstop.service;
 
 import com.retourstop.dto.response.ClientResponse;
 import com.retourstop.model.Client;
+import com.retourstop.model.ClientCheck;
 import com.retourstop.model.IncidentEvent;
+import com.retourstop.repository.ClientCheckRepository;
 import com.retourstop.repository.ClientRepository;
 import com.retourstop.repository.IncidentEventRepository;
 import org.springframework.stereotype.Service;
@@ -14,13 +16,15 @@ import java.util.stream.Collectors;
 public class ClientService {
     private final ClientRepository clientRepository;
     private final IncidentEventRepository incidentEventRepository;
+    private final ClientCheckRepository clientCheckRepository;
 
-    public ClientService(ClientRepository clientRepository, IncidentEventRepository incidentEventRepository) {
+    public ClientService(ClientRepository clientRepository, IncidentEventRepository incidentEventRepository, ClientCheckRepository clientCheckRepository) {
         this.clientRepository = clientRepository;
         this.incidentEventRepository = incidentEventRepository;
+        this.clientCheckRepository = clientCheckRepository;
     }
 
-    public ClientResponse checkClient(String phone) {
+    public ClientResponse checkClient(String phone, Long companyId) {
         String cleaned = phone.replaceAll("\\s", "");
         Client client = clientRepository.findByPhone(cleaned).orElse(null);
         List<IncidentEvent> events = incidentEventRepository.findByClientPhoneOrderByCreatedAtDesc(cleaned);
@@ -28,6 +32,13 @@ public class ClientService {
         List<ClientResponse.TimelineEvent> timeline = events.stream()
                 .map(e -> new ClientResponse.TimelineEvent(e.getCompanyName(), e.getEventDate(), e.getEventType()))
                 .collect(Collectors.toList());
+
+        if (!clientCheckRepository.existsByCompanyIdAndClientPhone(companyId, cleaned)) {
+            ClientCheck check = new ClientCheck();
+            check.setCompanyId(companyId);
+            check.setClientPhone(cleaned);
+            clientCheckRepository.save(check);
+        }
 
         if (client == null) {
             return new ClientResponse("Client inconnu", maskPhone(cleaned), 15, "FIABLE", 2, 0, new java.math.BigDecimal("0"), timeline);

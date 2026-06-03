@@ -27,11 +27,14 @@ public class ReportService {
     private final ReportRepository reportRepository;
     private final IncidentEventRepository incidentEventRepository;
     private final ClientRepository clientRepository;
+    private final NotificationService notificationService;
 
-    public ReportService(ReportRepository reportRepository, IncidentEventRepository incidentEventRepository, ClientRepository clientRepository) {
+    public ReportService(ReportRepository reportRepository, IncidentEventRepository incidentEventRepository,
+                         ClientRepository clientRepository, NotificationService notificationService) {
         this.reportRepository = reportRepository;
         this.incidentEventRepository = incidentEventRepository;
         this.clientRepository = clientRepository;
+        this.notificationService = notificationService;
     }
 
     public ReportResponse createReport(Long companyId, ReportRequest req, String companyName) {
@@ -55,13 +58,15 @@ public class ReportService {
         event.setEventType(report.getIncidentType());
         incidentEventRepository.save(event);
 
-        updateClientAfterReport(phone, req.getName(), req.getCity(), report.getIncidentDate(), req.getValue());
+        updateClientAfterReport(phone, req.getName(), req.getCity(), report.getIncidentDate(), req.getValue(), companyId);
 
         return toResponse(report);
     }
 
-    private void updateClientAfterReport(String phone, String name, String city, LocalDate incidentDate, BigDecimal value) {
+    private void updateClientAfterReport(String phone, String name, String city, LocalDate incidentDate, BigDecimal value, Long companyId) {
         Client client = clientRepository.findByPhone(phone).orElse(null);
+        String oldLevel = client != null ? client.getLevel() : "FIABLE";
+
         if (client == null) {
             client = new Client();
             client.setPhone(phone);
@@ -83,6 +88,9 @@ public class ReportService {
 
         recalculateScore(client);
         clientRepository.save(client);
+
+        String newLevel = client.getLevel();
+        notificationService.notifyClientLevelUp(phone, client.getName(), oldLevel, newLevel, companyId);
     }
 
     private void recalculateScore(Client client) {

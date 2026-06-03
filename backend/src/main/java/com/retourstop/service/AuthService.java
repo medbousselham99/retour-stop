@@ -2,6 +2,7 @@ package com.retourstop.service;
 
 import com.retourstop.config.JwtUtil;
 import com.retourstop.dto.request.LoginRequest;
+import com.retourstop.dto.request.RefreshTokenRequest;
 import com.retourstop.dto.request.RegisterRequest;
 import com.retourstop.dto.response.AuthResponse;
 import com.retourstop.model.Company;
@@ -28,7 +29,8 @@ public class AuthService {
             throw new RuntimeException("Email ou mot de passe incorrect");
         }
         String token = jwtUtil.generateToken(company.getId(), company.getEmail());
-        return new AuthResponse(token, company.getName(), company.getEmail(), company.getIce(), company.getPlan());
+        String refreshToken = jwtUtil.generateRefreshToken(company.getId(), company.getEmail());
+        return new AuthResponse(token, refreshToken, company.getName(), company.getEmail(), company.getIce(), company.getPlan());
     }
 
     public AuthResponse register(RegisterRequest req) {
@@ -44,6 +46,21 @@ public class AuthService {
         company.setPlan("Starter");
         company = companyRepository.save(company);
         String token = jwtUtil.generateToken(company.getId(), company.getEmail());
-        return new AuthResponse(token, company.getName(), company.getEmail(), company.getIce(), company.getPlan());
+        String refreshToken = jwtUtil.generateRefreshToken(company.getId(), company.getEmail());
+        return new AuthResponse(token, refreshToken, company.getName(), company.getEmail(), company.getIce(), company.getPlan());
+    }
+
+    public AuthResponse refresh(RefreshTokenRequest req) {
+        String rawToken = req.getRefreshToken();
+        if (!jwtUtil.validateToken(rawToken)) {
+            throw new RuntimeException("Token de rafraîchissement invalide ou expiré");
+        }
+        Long companyId = jwtUtil.getCompanyId(rawToken);
+        Company company = companyRepository.findById(companyId)
+                .orElseThrow(() -> new RuntimeException("Société non trouvée"));
+
+        String newToken = jwtUtil.generateToken(company.getId(), company.getEmail());
+        String newRefreshToken = jwtUtil.generateRefreshToken(company.getId(), company.getEmail());
+        return new AuthResponse(newToken, newRefreshToken, company.getName(), company.getEmail(), company.getIce(), company.getPlan());
     }
 }
