@@ -2,6 +2,7 @@ package com.retourstop.model;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -15,6 +16,11 @@ public class Client {
     private String phone;
 
     private String name;
+
+    private String city;
+
+    @Column(name = "last_incident_date")
+    private LocalDate lastIncidentDate;
 
     private Integer score = 15;
 
@@ -52,6 +58,10 @@ public class Client {
     public void setPhone(String phone) { this.phone = phone; }
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
+    public String getCity() { return city; }
+    public void setCity(String city) { this.city = city; }
+    public LocalDate getLastIncidentDate() { return lastIncidentDate; }
+    public void setLastIncidentDate(LocalDate lastIncidentDate) { this.lastIncidentDate = lastIncidentDate; }
     public Integer getScore() { return score; }
     public void setScore(Integer score) { this.score = score; }
     public String getLevel() { return level; }

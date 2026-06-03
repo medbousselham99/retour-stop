@@ -9,8 +9,10 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/reports")
@@ -25,10 +27,17 @@ public class ReportController {
 
     @PostMapping
     public ResponseEntity<ReportResponse> createReport(@Valid @RequestBody ReportRequest req,
-                                                       Authentication auth) {
+                                                        Authentication auth) {
         Long companyId = (Long) auth.getPrincipal();
         Company company = companyRepository.findById(companyId).orElseThrow();
         return ResponseEntity.ok(reportService.createReport(companyId, req, company.getName()));
+    }
+
+    @PostMapping("/{id}/photo")
+    public ResponseEntity<Map<String, String>> uploadPhoto(@PathVariable Long id,
+                                                            @RequestParam("photo") MultipartFile file) {
+        String path = reportService.savePhoto(id, file);
+        return ResponseEntity.ok(Map.of("path", path));
     }
 
     @GetMapping

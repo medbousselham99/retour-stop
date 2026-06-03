@@ -2,7 +2,7 @@
 
 > Plateforme full-stack de gestion des risques et blacklist partagée pour les sociétés de livraison au Maroc.
 
-**Stack :** React 19 + Vite 6 — Spring Boot 3.4 — MySQL 8 — JWT
+**Stack :** React 19 — Spring Boot 3.4 — MySQL 8 — JWT
 
 ---
 

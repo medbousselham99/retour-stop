@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface IncidentEventRepository extends JpaRepository<IncidentEvent, Long> {
     List<IncidentEvent> findByClientPhoneOrderByCreatedAtDesc(String clientPhone);
+
+    List<IncidentEvent> findTop10ByOrderByCreatedAtDesc();
 }

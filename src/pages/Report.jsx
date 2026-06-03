@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Send } from 'lucide-react';
 import AppShell from '../components/layout/AppShell';
 import WilayaSelect from '../components/WilayaSelect';
@@ -16,7 +16,9 @@ export default function Report() {
     value: '',
     notes: '',
   });
+  const [photo, setPhoto] = useState(null);
   const [loading, setLoading] = useState(false);
+  const fileRef = useRef(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -27,7 +29,7 @@ export default function Report() {
     e.preventDefault();
     setLoading(true);
     try {
-      await api('POST', '/api/reports', {
+      const report = await api('POST', '/api/reports', {
         phone: form.phone,
         name: form.name,
         city: form.city,
@@ -36,8 +38,17 @@ export default function Report() {
         value: form.value ? Number(form.value) : null,
         notes: form.notes,
       });
+
+      if (photo) {
+        const fd = new FormData();
+        fd.append('photo', photo);
+        await api('POST', `/api/reports/${report.id}/photo`, fd);
+      }
+
       showModal('Signalement envoyé', 'Votre signalement sera validé sous 24h.');
       setForm({ phone: '', name: '', city: '', date: '', type: '', value: '', notes: '' });
+      setPhoto(null);
+      if (fileRef.current) fileRef.current.value = '';
     } catch (err) {
       showModal('Erreur', err.message);
     } finally {
@@ -99,7 +110,7 @@ export default function Report() {
           </p>
           <p className="form-group">
             <label htmlFor="photo">Photo (optionnelle)</label>
-            <input id="photo" type="file" accept="image/*" />
+            <input ref={fileRef} id="photo" type="file" accept="image/*" onChange={(e) => setPhoto(e.target.files[0] || null)} />
             <small style={{ fontSize: '.75rem', color: 'var(--text-muted)', display: 'block' }}>
               Preuve de tentative de livraison
             </small>

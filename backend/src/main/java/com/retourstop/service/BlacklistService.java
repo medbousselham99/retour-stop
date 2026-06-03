@@ -3,10 +3,11 @@ package com.retourstop.service;
 import com.retourstop.dto.response.BlacklistEntryResponse;
 import com.retourstop.model.Client;
 import com.retourstop.repository.ClientRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.time.format.DateTimeFormatter;
 
 @Service
 public class BlacklistService {
@@ -16,23 +17,25 @@ public class BlacklistService {
         this.clientRepository = clientRepository;
     }
 
-    public List<BlacklistEntryResponse> getBlacklist(String search, String level, String wilaya) {
-        return clientRepository.findAll().stream()
-                .filter(c -> c.getScore() >= 40)
-                .filter(c -> search == null || search.isBlank() || c.getName() != null && c.getName().toLowerCase().contains(search.toLowerCase()) || c.getPhone().contains(search))
-                .filter(c -> level == null || level.isBlank() || level.equals(c.getLevel()))
-                .filter(c -> wilaya == null || wilaya.isBlank())
-                .map(c -> new BlacklistEntryResponse(
-                        c.getId(),
-                        c.getName(),
-                        maskPhone(c.getPhone()),
-                        "",  // city not stored on client yet
-                        c.getScore(),
-                        c.getLevel(),
-                        c.getRetours(),
-                        ""
-                ))
-                .collect(Collectors.toList());
+    public Page<BlacklistEntryResponse> getBlacklist(String search, String level, String wilaya, Pageable pageable) {
+        String searchParam = (search != null && !search.isBlank()) ? search.trim() : null;
+        String levelParam = (level != null && !level.isBlank()) ? level : null;
+        String wilayaParam = (wilaya != null && !wilaya.isBlank()) ? wilaya : null;
+
+        Page<Client> clientPage = clientRepository.findBlacklist(searchParam, levelParam, wilayaParam, pageable);
+
+        return clientPage.map(c -> new BlacklistEntryResponse(
+                c.getId(),
+                c.getName(),
+                maskPhone(c.getPhone()),
+                c.getCity() != null ? c.getCity() : "",
+                c.getScore(),
+                c.getLevel(),
+                c.getRetours(),
+                c.getLastIncidentDate() != null
+                        ? c.getLastIncidentDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                        : ""
+        ));
     }
 
     private String maskPhone(String phone) {

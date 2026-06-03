@@ -40,10 +40,10 @@ public class DataInitializer implements CommandLineRunner {
         ));
 
         clientRepository.saveAll(java.util.List.of(
-                createClient("0612345678", "Mohammed B.", 87, "BLACKLISTÉ", 24, 18, 75.00),
-                createClient("0678901234", "Fatima Z.", 45, "ATTENTION", 12, 4, 33.00),
-                createClient("0655123491", "Karim B.", 22, "FIABLE", 8, 1, 12.50),
-                createClient("0698765432", "Amina M.", 72, "RISQUÉ", 15, 9, 60.00)
+                createClient("0612345678", "Mohammed B.", "Casablanca", java.time.LocalDate.of(2026, 4, 12), 87, "BLACKLISTÉ", 24, 18, 75.00),
+                createClient("0678901234", "Fatima Z.", "Rabat", java.time.LocalDate.of(2026, 4, 5), 45, "ATTENTION", 12, 4, 33.00),
+                createClient("0655123491", "Karim B.", "Marrakech", null, 22, "FIABLE", 8, 1, 12.50),
+                createClient("0698765432", "Amina M.", "Fès", java.time.LocalDate.of(2026, 4, 1), 72, "RISQUÉ", 15, 9, 60.00)
         ));
 
         incidentEventRepository.saveAll(java.util.List.of(
@@ -66,10 +66,12 @@ public class DataInitializer implements CommandLineRunner {
         return c;
     }
 
-    private Client createClient(String phone, String name, int score, String level, int orders, int retours, double rate) {
+    private Client createClient(String phone, String name, String city, java.time.LocalDate lastIncidentDate, int score, String level, int orders, int retours, double rate) {
         Client c = new Client();
         c.setPhone(phone);
         c.setName(name);
+        c.setCity(city);
+        c.setLastIncidentDate(lastIncidentDate);
         c.setScore(score);
         c.setLevel(level);
         c.setOrders(orders);

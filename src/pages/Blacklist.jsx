@@ -7,8 +7,6 @@ import { useApp } from '../context/AppContext';
 import { badgeClass } from '../utils/helpers';
 import { api } from '../utils/api';
 
-const PER_PAGE = 5;
-
 export default function Blacklist() {
   const navigate = useNavigate();
   const {
@@ -20,24 +18,30 @@ export default function Blacklist() {
   } = useApp();
 
   const [localFilter, setLocalFilter] = useState(blacklistFilter);
-  const [items, setItems] = useState([]);
+  const [pageData, setPageData] = useState({ content: [], totalPages: 0, totalElements: 0, number: 0 });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setLoading(true);
-    const params = {};
+    const params = { page: blacklistPage - 1, size: 5 };
     if (localFilter.search) params.search = localFilter.search;
     if (localFilter.level) params.level = localFilter.level;
     if (localFilter.wilaya) params.wilaya = localFilter.wilaya;
     api('GET', `/api/blacklist?${new URLSearchParams(params)}`)
-      .then(setItems)
+      .then((data) => {
+        if (data.content) {
+          setPageData(data);
+        } else {
+          setPageData({ content: data, totalPages: 1, totalElements: data.length, number: 0 });
+        }
+      })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, [blacklistFilter]);
+  }, [blacklistPage, blacklistFilter]);
 
-  const totalPages = Math.max(1, Math.ceil(items.length / PER_PAGE));
-  const page = Math.min(blacklistPage, totalPages);
-  const slice = items.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+  const items = pageData.content || [];
+  const totalPages = pageData.totalPages || 1;
+  const currentPage = pageData.number + 1;
 
   const applyFilter = () => {
     setBlacklistFilter(localFilter);
@@ -53,7 +57,7 @@ export default function Blacklist() {
     <AppShell title="Liste noire">
       <header className="page-header">
         <h2>Liste noire partagée</h2>
-        <p>{loading ? 'Chargement...' : `${items.length} profils signalés sur la plateforme.`}</p>
+        <p>{loading ? 'Chargement...' : `${pageData.totalElements} profils signalés sur la plateforme.`}</p>
       </header>
 
       <section className="filters card" style={{ padding: '1rem', marginBottom: '1rem' }}>
@@ -99,10 +103,10 @@ export default function Blacklist() {
             </tr>
           </thead>
           <tbody>
-            {slice.length === 0 && !loading && (
+            {items.length === 0 && !loading && (
               <tr><td colSpan={7} style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>Aucun résultat</td></tr>
             )}
-            {slice.map((b) => (
+            {items.map((b) => (
               <tr key={b.id}>
                 <td>{b.name}</td>
                 <td>{b.phone}</td>
@@ -122,18 +126,18 @@ export default function Blacklist() {
       </section>
 
       <nav className="pagination" aria-label="Pagination">
-        <button type="button" disabled={page <= 1} onClick={() => setBlacklistPage(page - 1)}>←</button>
+        <button type="button" disabled={currentPage <= 1} onClick={() => setBlacklistPage(currentPage - 1)}>←</button>
         {Array.from({ length: totalPages }, (_, i) => i + 1).map((i) => (
           <button
             key={i}
             type="button"
-            className={i === page ? 'active' : ''}
+            className={i === currentPage ? 'active' : ''}
             onClick={() => setBlacklistPage(i)}
           >
             {i}
           </button>
         ))}
-        <button type="button" disabled={page >= totalPages} onClick={() => setBlacklistPage(page + 1)}>→</button>
+        <button type="button" disabled={currentPage >= totalPages} onClick={() => setBlacklistPage(currentPage + 1)}>→</button>
       </nav>
     </AppShell>
   );

@@ -37,6 +37,9 @@ public class Report {
 
     private String status = "En attente";
 
+    @Column(name = "photo_path")
+    private String photoPath;
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
@@ -65,5 +68,7 @@ public class Report {
     public void setNotes(String notes) { this.notes = notes; }
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+    public String getPhotoPath() { return photoPath; }
+    public void setPhotoPath(String photoPath) { this.photoPath = photoPath; }
     public LocalDateTime getCreatedAt() { return createdAt; }
 }
