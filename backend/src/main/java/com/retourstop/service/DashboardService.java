@@ -1,10 +1,10 @@
 package com.retourstop.service;
 
 import com.retourstop.dto.response.DashboardResponse;
-import com.retourstop.model.IncidentEvent;
+import com.retourstop.model.ActivityLog;
 import com.retourstop.model.Report;
-import com.retourstop.repository.IncidentEventRepository;
 import com.retourstop.repository.ReportRepository;
+import com.retourstop.service.ActivityLogService;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -19,11 +19,11 @@ import java.util.stream.Collectors;
 @Service
 public class DashboardService {
     private final ReportRepository reportRepository;
-    private final IncidentEventRepository incidentEventRepository;
+    private final ActivityLogService activityLogService;
 
-    public DashboardService(ReportRepository reportRepository, IncidentEventRepository incidentEventRepository) {
+    public DashboardService(ReportRepository reportRepository, ActivityLogService activityLogService) {
         this.reportRepository = reportRepository;
-        this.incidentEventRepository = incidentEventRepository;
+        this.activityLogService = activityLogService;
     }
 
     public DashboardResponse getDashboard() {
@@ -95,19 +95,13 @@ public class DashboardService {
     }
 
     private List<DashboardResponse.ActivityItem> buildActivity() {
-        List<IncidentEvent> recentEvents = incidentEventRepository.findTop10ByOrderByCreatedAtDesc();
-        return recentEvents.stream()
-                .map(e -> {
-                    String text = "Signalement soumis — " + maskPhone(e.getClientPhone());
-                    String time = timeAgo(e.getCreatedAt());
-                    return new DashboardResponse.ActivityItem("report", text, time);
+        List<ActivityLog> recentLogs = activityLogService.getRecent();
+        return recentLogs.stream()
+                .map(l -> {
+                    String type = l.getType() != null ? l.getType() : "report";
+                    return new DashboardResponse.ActivityItem(type, l.getMessage(), timeAgo(l.getCreatedAt()));
                 })
                 .collect(Collectors.toList());
-    }
-
-    private String maskPhone(String phone) {
-        if (phone == null || phone.length() < 6) return phone;
-        return phone.substring(0, 4) + "****" + phone.substring(phone.length() - 2);
     }
 
     private String timeAgo(LocalDateTime dateTime) {

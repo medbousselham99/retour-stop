@@ -15,11 +15,14 @@ public class AuthService {
     private final CompanyRepository companyRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final ActivityLogService activityLogService;
 
-    public AuthService(CompanyRepository companyRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
+    public AuthService(CompanyRepository companyRepository, PasswordEncoder passwordEncoder,
+                       JwtUtil jwtUtil, ActivityLogService activityLogService) {
         this.companyRepository = companyRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
+        this.activityLogService = activityLogService;
     }
 
     public AuthResponse login(LoginRequest req) {
@@ -30,6 +33,7 @@ public class AuthService {
         }
         String token = jwtUtil.generateToken(company.getId(), company.getEmail());
         String refreshToken = jwtUtil.generateRefreshToken(company.getId(), company.getEmail());
+        activityLogService.logLogin(company.getId());
         return new AuthResponse(token, refreshToken, company.getName(), company.getEmail(), company.getIce(), company.getPlan());
     }
 

@@ -28,13 +28,16 @@ public class ReportService {
     private final IncidentEventRepository incidentEventRepository;
     private final ClientRepository clientRepository;
     private final NotificationService notificationService;
+    private final ActivityLogService activityLogService;
 
     public ReportService(ReportRepository reportRepository, IncidentEventRepository incidentEventRepository,
-                         ClientRepository clientRepository, NotificationService notificationService) {
+                         ClientRepository clientRepository, NotificationService notificationService,
+                         ActivityLogService activityLogService) {
         this.reportRepository = reportRepository;
         this.incidentEventRepository = incidentEventRepository;
         this.clientRepository = clientRepository;
         this.notificationService = notificationService;
+        this.activityLogService = activityLogService;
     }
 
     public ReportResponse createReport(Long companyId, ReportRequest req, String companyName) {
@@ -59,6 +62,8 @@ public class ReportService {
         incidentEventRepository.save(event);
 
         updateClientAfterReport(phone, req.getName(), req.getCity(), report.getIncidentDate(), req.getValue(), companyId);
+
+        activityLogService.logReport(companyId, phone);
 
         return toResponse(report);
     }

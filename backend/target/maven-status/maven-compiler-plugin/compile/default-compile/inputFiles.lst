@@ -23,12 +23,14 @@ C:\Users\Simooo\Desktop\Projets Dev\RetourStop\backend\src\main\java\com\retours
 C:\Users\Simooo\Desktop\Projets Dev\RetourStop\backend\src\main\java\com\retourstop\dto\response\NotificationResponse.java
 C:\Users\Simooo\Desktop\Projets Dev\RetourStop\backend\src\main\java\com\retourstop\dto\response\ReportResponse.java
 C:\Users\Simooo\Desktop\Projets Dev\RetourStop\backend\src\main\java\com\retourstop\exception\GlobalExceptionHandler.java
+C:\Users\Simooo\Desktop\Projets Dev\RetourStop\backend\src\main\java\com\retourstop\model\ActivityLog.java
 C:\Users\Simooo\Desktop\Projets Dev\RetourStop\backend\src\main\java\com\retourstop\model\Client.java
 C:\Users\Simooo\Desktop\Projets Dev\RetourStop\backend\src\main\java\com\retourstop\model\ClientCheck.java
 C:\Users\Simooo\Desktop\Projets Dev\RetourStop\backend\src\main\java\com\retourstop\model\Company.java
 C:\Users\Simooo\Desktop\Projets Dev\RetourStop\backend\src\main\java\com\retourstop\model\IncidentEvent.java
 C:\Users\Simooo\Desktop\Projets Dev\RetourStop\backend\src\main\java\com\retourstop\model\Notification.java
 C:\Users\Simooo\Desktop\Projets Dev\RetourStop\backend\src\main\java\com\retourstop\model\Report.java
+C:\Users\Simooo\Desktop\Projets Dev\RetourStop\backend\src\main\java\com\retourstop\repository\ActivityLogRepository.java
 C:\Users\Simooo\Desktop\Projets Dev\RetourStop\backend\src\main\java\com\retourstop\repository\ClientCheckRepository.java
 C:\Users\Simooo\Desktop\Projets Dev\RetourStop\backend\src\main\java\com\retourstop\repository\ClientRepository.java
 C:\Users\Simooo\Desktop\Projets Dev\RetourStop\backend\src\main\java\com\retourstop\repository\CompanyRepository.java
@@ -36,6 +38,7 @@ C:\Users\Simooo\Desktop\Projets Dev\RetourStop\backend\src\main\java\com\retours
 C:\Users\Simooo\Desktop\Projets Dev\RetourStop\backend\src\main\java\com\retourstop\repository\NotificationRepository.java
 C:\Users\Simooo\Desktop\Projets Dev\RetourStop\backend\src\main\java\com\retourstop\repository\ReportRepository.java
 C:\Users\Simooo\Desktop\Projets Dev\RetourStop\backend\src\main\java\com\retourstop\RetourStopApplication.java
+C:\Users\Simooo\Desktop\Projets Dev\RetourStop\backend\src\main\java\com\retourstop\service\ActivityLogService.java
 C:\Users\Simooo\Desktop\Projets Dev\RetourStop\backend\src\main\java\com\retourstop\service\AuthService.java
 C:\Users\Simooo\Desktop\Projets Dev\RetourStop\backend\src\main\java\com\retourstop\service\BlacklistService.java
 C:\Users\Simooo\Desktop\Projets Dev\RetourStop\backend\src\main\java\com\retourstop\service\ClientService.java

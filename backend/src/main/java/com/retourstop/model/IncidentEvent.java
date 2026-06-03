@@ -10,6 +10,10 @@ public class IncidentEvent {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "client_phone", referencedColumnName = "phone", insertable = false, updatable = false)
+    private Client client;
+
     @Column(name = "client_phone", nullable = false, length = 20)
     private String clientPhone;
 
@@ -32,6 +36,7 @@ public class IncidentEvent {
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
+    public Client getClient() { return client; }
     public String getClientPhone() { return clientPhone; }
     public void setClientPhone(String clientPhone) { this.clientPhone = clientPhone; }
     public String getCompanyName() { return companyName; }
