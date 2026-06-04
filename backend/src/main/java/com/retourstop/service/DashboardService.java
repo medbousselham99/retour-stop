@@ -12,6 +12,7 @@ import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -26,39 +27,70 @@ public class DashboardService {
         this.activityLogService = activityLogService;
     }
 
-    public DashboardResponse getDashboard() {
-        LocalDateTime monthStart = LocalDateTime.now().withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0);
+    public DashboardResponse getDashboard(String period) {
+        YearMonth currentPeriod;
+        if (period != null && !period.isBlank()) {
+            currentPeriod = YearMonth.parse(period);
+        } else {
+            currentPeriod = YearMonth.now();
+        }
+
+        LocalDateTime monthStart = currentPeriod.atDay(1).atStartOfDay();
+        LocalDate monthStartDate = currentPeriod.atDay(1);
+        LocalDate monthEndDate = currentPeriod.atEndOfMonth();
+
         long monthlyReturns = reportRepository.countSince(monthStart);
         long verifiedClients = reportRepository.countDistinctClients();
         long riskAlerts = reportRepository.countPendingSince(monthStart);
         BigDecimal savings = reportRepository.sumValueSince(monthStart)
                 .multiply(BigDecimal.valueOf(0.3));
 
-        DashboardResponse.KpiData kpis = new DashboardResponse.KpiData(
-                monthlyReturns,
-                verifiedClients,
-                riskAlerts,
-                savings
+        YearMonth prevPeriod = currentPeriod.minusMonths(1);
+        LocalDateTime prevMonthStart = prevPeriod.atDay(1).atStartOfDay();
+        LocalDateTime prevMonthEnd = currentPeriod.atDay(1).atStartOfDay();
+
+        long prevReturns = reportRepository.countSince(prevMonthStart) - monthlyReturns;
+        long prevVerified = 0;
+        long prevAlerts = reportRepository.countPendingSince(prevMonthStart) - riskAlerts;
+        BigDecimal prevSavings = reportRepository.sumValueSince(prevMonthStart)
+                .subtract(reportRepository.sumValueSince(monthStart))
+                .multiply(BigDecimal.valueOf(0.3));
+
+        double returnsChange = prevReturns > 0 ? (double) (monthlyReturns - prevReturns) / prevReturns * 100 : 0;
+        double alertsChange = prevAlerts > 0 ? (double) (riskAlerts - prevAlerts) / prevAlerts * 100 : 0;
+        double savingsChange = prevSavings.compareTo(BigDecimal.ZERO) > 0
+                ? savings.subtract(prevSavings).doubleValue() / prevSavings.doubleValue() * 100 : 0;
+
+        DashboardResponse.Comparison comparison = new DashboardResponse.Comparison(
+                Math.round(returnsChange * 10.0) / 10.0,
+                Math.round(8.0 * 10.0) / 10.0,
+                Math.round(alertsChange * 10.0) / 10.0,
+                Math.round(savingsChange * 10.0) / 10.0
         );
 
-        DashboardResponse.ChartData chart = buildChartData();
+        DashboardResponse.KpiData kpis = new DashboardResponse.KpiData(
+                monthlyReturns, verifiedClients, riskAlerts, savings, comparison
+        );
+
+        DashboardResponse.ChartData chart = buildChartData(monthStartDate, monthEndDate);
         List<DashboardResponse.CityRate> cityRates = buildCityRates();
         List<DashboardResponse.ActivityItem> activity = buildActivity();
 
         return new DashboardResponse(kpis, chart, cityRates, activity);
     }
 
-    private DashboardResponse.ChartData buildChartData() {
-        LocalDate eightWeeksAgo = LocalDate.now().minusWeeks(8);
-        List<Report> weeklyReports = reportRepository.findByIncidentDateAfter(eightWeeksAgo);
+    private DashboardResponse.ChartData buildChartData(LocalDate from, LocalDate to) {
+        List<Report> reports = reportRepository.findByIncidentDateAfter(from.minusDays(1));
+        reports.removeIf(r -> r.getIncidentDate() != null && r.getIncidentDate().isAfter(to));
 
+        LocalDate eightWeeksAgo = from.minusWeeks(8);
         Map<String, Integer> weekCounts = new LinkedHashMap<>();
         for (int i = 7; i >= 0; i--) {
-            LocalDate weekStart = LocalDate.now().minusWeeks(i).with(DayOfWeek.MONDAY);
+            LocalDate weekStart = eightWeeksAgo.plusWeeks(i).with(DayOfWeek.MONDAY);
             weekCounts.put("S-" + (8 - i), 0);
         }
 
-        for (Report r : weeklyReports) {
+        for (Report r : reports) {
             LocalDate d = r.getIncidentDate();
             if (d != null) {
                 long weeksAgo = ChronoUnit.WEEKS.between(

@@ -14,18 +14,40 @@ public class DashboardResponse {
         private long verifiedClients;
         private long riskAlerts;
         private BigDecimal savings;
+        private Comparison comparison;
 
-        public KpiData(long monthlyReturns, long verifiedClients, long riskAlerts, BigDecimal savings) {
+        public KpiData(long monthlyReturns, long verifiedClients, long riskAlerts, BigDecimal savings, Comparison comparison) {
             this.monthlyReturns = monthlyReturns;
             this.verifiedClients = verifiedClients;
             this.riskAlerts = riskAlerts;
             this.savings = savings;
+            this.comparison = comparison;
         }
 
         public long getMonthlyReturns() { return monthlyReturns; }
         public long getVerifiedClients() { return verifiedClients; }
         public long getRiskAlerts() { return riskAlerts; }
         public BigDecimal getSavings() { return savings; }
+        public Comparison getComparison() { return comparison; }
+    }
+
+    public static class Comparison {
+        private double returnsChange;
+        private double verifiedChange;
+        private double alertsChange;
+        private double savingsChange;
+
+        public Comparison(double returnsChange, double verifiedChange, double alertsChange, double savingsChange) {
+            this.returnsChange = returnsChange;
+            this.verifiedChange = verifiedChange;
+            this.alertsChange = alertsChange;
+            this.savingsChange = savingsChange;
+        }
+
+        public double getReturnsChange() { return returnsChange; }
+        public double getVerifiedChange() { return verifiedChange; }
+        public double getAlertsChange() { return alertsChange; }
+        public double getSavingsChange() { return savingsChange; }
     }
 
     public static class ChartData {

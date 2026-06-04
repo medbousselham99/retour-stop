@@ -294,3 +294,35 @@ footer a:hover { color: #fff; }
 
 @keyframes spin { to { transform: rotate(360deg); } }
 .spin { animation: spin .8s linear infinite; }
+
+/* Period selector */
+.period-selector { display: flex; gap: .5rem; align-items: center; }
+.period-selector span { font-weight: 600; font-size: .875rem; min-width: 130px; text-align: center; }
+
+/* Stats page risk bar in table */
+.stats-risk-bar { display: flex; align-items: center; gap: .5rem; }
+.stats-risk-bar .bar { flex: 1; height: 6px; border-radius: 3px; background: var(--surface-2); overflow: hidden; }
+.stats-risk-bar .bar-fill { height: 100%; border-radius: 3px; transition: width .5s; }
+
+/* Status distribution cards */
+.status-dist { display: flex; flex-direction: column; gap: 1rem; }
+.status-row { display: flex; justify-content: space-between; align-items: center; padding: .5rem 0; }
+.status-row .label { display: flex; align-items: center; gap: .5rem; font-size: .875rem; }
+.status-row .value { font-weight: 700; font-size: 1.25rem; }
+
+/* Monthly evolution list */
+.monthly-list { display: flex; flex-direction: column; gap: .75rem; }
+.monthly-item { display: flex; justify-content: space-between; align-items: center; padding: .5rem 0; border-bottom: 1px solid var(--border); }
+.monthly-item:last-child { border-bottom: none; }
+.monthly-item .month { font-size: .875rem; font-weight: 500; }
+.monthly-item .amounts { text-align: right; }
+.monthly-item .count { font-weight: 700; }
+.monthly-item .value-sm { color: var(--text-muted); font-size: .75rem; margin-left: .5rem; }
+
+/* Company info header */
+.company-header { display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
+.company-logo-box { width: 64px; height: 64px; border-radius: 16px; background: var(--navy); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.company-info { flex: 1; }
+.company-info h3 { font-size: 1.25rem; font-weight: 700; }
+.company-info p { color: var(--text-muted); font-size: .875rem; }
+.company-plan-badge { font-size: .875rem; padding: .35rem 1rem; }

@@ -109,5 +109,5 @@ export const CITY_RATES = [
 ];
 
 export const APP_ROUTES = [
-  '/dashboard', '/check', '/report', '/my-reports', '/blacklist', '/settings',
+  '/dashboard', '/check', '/report', '/my-reports', '/stats', '/blacklist', '/company', '/settings',
 ];

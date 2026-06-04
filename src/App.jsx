@@ -9,7 +9,9 @@ import Dashboard from './pages/Dashboard';
 import Check from './pages/Check';
 import Report from './pages/Report';
 import MyReports from './pages/MyReports';
+import Stats from './pages/Stats';
 import Blacklist from './pages/Blacklist';
+import Company from './pages/Company';
 import Settings from './pages/Settings';
 
 export default function App() {
@@ -24,7 +26,9 @@ export default function App() {
           <Route path="/check" element={<ProtectedRoute><Check /></ProtectedRoute>} />
           <Route path="/report" element={<ProtectedRoute><Report /></ProtectedRoute>} />
           <Route path="/my-reports" element={<ProtectedRoute><MyReports /></ProtectedRoute>} />
+          <Route path="/stats" element={<ProtectedRoute><Stats /></ProtectedRoute>} />
           <Route path="/blacklist" element={<ProtectedRoute><Blacklist /></ProtectedRoute>} />
+          <Route path="/company" element={<ProtectedRoute><Company /></ProtectedRoute>} />
           <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

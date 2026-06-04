@@ -2,6 +2,8 @@ import { NavLink } from 'react-router-dom';
 import {
   AlertTriangle,
   Ban,
+  BarChart3,
+  Building2,
   FileText,
   LayoutDashboard,
   Search,
@@ -16,7 +18,9 @@ const NAV_ITEMS = [
   { to: '/check', label: 'Vérifier un client', icon: Search },
   { to: '/report', label: 'Signaler un retour', icon: AlertTriangle },
   { to: '/my-reports', label: 'Mes signalements', icon: FileText },
+  { to: '/stats', label: 'Statistiques', icon: BarChart3 },
   { to: '/blacklist', label: 'Liste noire', icon: Ban },
+  { to: '/company', label: 'Mon entreprise', icon: Building2 },
   { to: '/settings', label: 'Paramètres', icon: Settings },
 ];
 
