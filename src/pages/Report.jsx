@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Send } from 'lucide-react';
+import { Send, Loader } from 'lucide-react';
 import AppShell from '../components/layout/AppShell';
 import WilayaSelect from '../components/WilayaSelect';
 import { useApp } from '../context/AppContext';
@@ -116,7 +116,7 @@ export default function Report() {
             </small>
           </p>
           <button type="submit" className="btn btn-danger" disabled={loading}>
-            <Send size={18} /> {loading ? 'Envoi...' : 'Soumettre'}
+            {loading ? <><Loader size={18} className="spin" /> Envoi...</> : <><Send size={18} /> Soumettre</>}
           </button>
         </form>
       </article>

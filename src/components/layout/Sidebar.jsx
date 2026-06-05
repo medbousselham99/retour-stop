@@ -34,11 +34,12 @@ export default function Sidebar() {
         <ShieldCheck size={20} /> RetourStop
       </div>
       <nav className="sidebar-nav">
-        {NAV_ITEMS.map(({ to, label, icon: Icon }) => (
+        {NAV_ITEMS.map(({ to, label, icon: Icon }, i) => (
           <NavLink
             key={to}
             to={to}
             className={({ isActive }) => (isActive ? 'active' : '')}
+            style={{ animationDelay: `${i * 40}ms` }}
           >
             <Icon size={18} /> {label}
           </NavLink>

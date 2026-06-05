@@ -111,12 +111,12 @@ export default function Check() {
       {checkLoading && (
         <div className="card" style={{ marginTop: '1.5rem', textAlign: 'center', padding: '2rem' }}>
           <Loader size={24} className="spin" />
-          <p style={{ marginTop: '.5rem', color: 'var(--text-muted)' }}>Recherche en cours...</p>
+          <p className="animate-in-fade" style={{ marginTop: '.5rem', color: 'var(--text-muted)' }}>Recherche en cours...</p>
         </div>
       )}
 
       {r && !checkLoading && (
-        <div className="card" style={{ marginTop: '1.5rem' }}>
+        <div className="card animate-in-scale" style={{ marginTop: '1.5rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
             <div>
               <h3 style={{ fontSize: '1.25rem', fontWeight: 700 }}>{r.name}</h3>
@@ -143,8 +143,8 @@ export default function Check() {
               { num: r.retours, lbl: 'Retours' },
               { num: `${r.rate}%`, lbl: 'Taux retour' },
               { num: r.level, lbl: 'Niveau', color: col },
-            ].map((s) => (
-              <div key={s.lbl} className="risk-stat">
+            ].map((s, i) => (
+              <div key={s.lbl} className={`risk-stat animate-in stagger-${i + 1}`} style={{ opacity: 0 }}>
                 <div className="num" style={s.color ? { color: s.color } : undefined}>{s.num}</div>
                 <div className="lbl">{s.lbl}</div>
               </div>

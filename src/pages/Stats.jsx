@@ -19,7 +19,16 @@ export default function Stats() {
   if (loading) {
     return (
       <AppShell title="Statistiques par wilaya">
-        <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>Chargement...</div>
+        <div className="page-header">
+          <div className="skeleton skeleton-title" />
+          <div className="skeleton skeleton-text" style={{ width: '50%' }} />
+        </div>
+        <div className="kpi-grid">
+          {[1,2,3,4].map((i) => <div key={i} className="card kpi-card"><div className="skeleton skeleton-card" /></div>)}
+        </div>
+        <div className="table-wrap" style={{ marginTop: '1.5rem' }}>
+          <div className="skeleton skeleton-card" style={{ height: 200 }} />
+        </div>
       </AppShell>
     );
   }
@@ -35,29 +44,29 @@ export default function Stats() {
       </div>
 
       <div className="kpi-grid">
-        <div className="card kpi-card">
+        <div className="card kpi-card animate-in stagger-1">
           <div className="label">Signalements totaux</div>
           <div className="value">{totals?.totalReports ?? 0}</div>
           <div className="sub">Toutes wilayas confondues</div>
         </div>
-        <div className="card kpi-card">
+        <div className="card kpi-card animate-in stagger-2">
           <div className="label">Clients concernés</div>
           <div className="value">{totals?.totalClients ?? 0}</div>
           <div className="sub">Clients uniques</div>
         </div>
-        <div className="card kpi-card">
+        <div className="card kpi-card animate-in stagger-3">
           <div className="label">Montant total engagé</div>
           <div className="value" style={{ color: 'var(--teal)' }}>{(totals?.totalMontant ?? 0).toLocaleString()} MAD</div>
           <div className="sub">Valeur cumulée</div>
         </div>
-        <div className="card kpi-card">
+        <div className="card kpi-card animate-in stagger-4">
           <div className="label">Clients à risque</div>
           <div className="value" style={{ color: 'var(--red)' }}>{totals?.totalBlacklistes ?? 0}</div>
           <div className="sub">Risqué + Blacklisté</div>
         </div>
       </div>
 
-      <div className="table-wrap" style={{ marginTop: '1.5rem' }}>
+      <div className="table-wrap animate-in" style={{ marginTop: '1.5rem', opacity: 0 }}>
         <table>
           <thead>
             <tr>
@@ -72,8 +81,8 @@ export default function Stats() {
             </tr>
           </thead>
           <tbody>
-            {wilayas.map((w) => (
-              <tr key={w.wilaya}>
+            {wilayas.map((w, i) => (
+              <tr key={w.wilaya} className="animate-in" style={{ animationDelay: `${i * 40}ms` }}>
                 <td><strong>{w.wilaya}</strong></td>
                 <td>{w.totalReports}</td>
                 <td><span className="badge badge-fiable">{w.fiable}</span></td>

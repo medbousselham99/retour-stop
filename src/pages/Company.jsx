@@ -19,7 +19,16 @@ export default function Company() {
   if (loading) {
     return (
       <AppShell title="Mon entreprise">
-        <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>Chargement...</div>
+        <div className="page-header">
+          <div className="skeleton skeleton-title" />
+          <div className="skeleton skeleton-text" style={{ width: '40%' }} />
+        </div>
+        <div className="card" style={{ marginBottom: '1.5rem' }}>
+          <div className="skeleton skeleton-card" style={{ height: 80 }} />
+        </div>
+        <div className="kpi-grid">
+          {[1,2,3,4].map((i) => <div key={i} className="card kpi-card"><div className="skeleton skeleton-card" /></div>)}
+        </div>
       </AppShell>
     );
   }
@@ -34,7 +43,7 @@ export default function Company() {
         <p>Vue d&apos;ensemble de votre activité et statistiques.</p>
       </div>
 
-      <div className="card" style={{ marginBottom: '1.5rem' }}>
+      <div className="card animate-in stagger-5" style={{ marginBottom: '1.5rem', opacity: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
           <div style={{ width: 64, height: 64, borderRadius: 16, background: 'var(--navy)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             <Building2 size={32} color="#fff" />
@@ -52,28 +61,28 @@ export default function Company() {
       </div>
 
       <div className="kpi-grid">
-        <div className="card kpi-card">
+        <div className="card kpi-card animate-in stagger-1">
           <div className="label">Signalements totaux</div>
           <div className="value">{k?.totalReports ?? 0}</div>
           <div className="sub">
             <FileText size={14} /> Tous vos signalements
           </div>
         </div>
-        <div className="card kpi-card">
+        <div className="card kpi-card animate-in stagger-2">
           <div className="label">Clients signalés</div>
           <div className="value">{k?.totalClients ?? 0}</div>
           <div className="sub">
             <Users size={14} /> Clients uniques
           </div>
         </div>
-        <div className="card kpi-card">
+        <div className="card kpi-card animate-in stagger-3">
           <div className="label">Valeur totale</div>
           <div className="value" style={{ color: 'var(--teal)' }}>{(k?.totalValue ?? 0).toLocaleString()} MAD</div>
           <div className="sub">
             <DollarSign size={14} /> Montant cumulé
           </div>
         </div>
-        <div className="card kpi-card">
+        <div className="card kpi-card animate-in stagger-4">
           <div className="label">En attente</div>
           <div className="value" style={{ color: 'var(--orange)' }}>{k?.pendingReports ?? 0}</div>
           <div className="sub">
@@ -82,7 +91,7 @@ export default function Company() {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginTop: '1.5rem' }}>
+      <div className="animate-in stagger-6" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginTop: '1.5rem', opacity: 0 }}>
         <div className="card">
           <h3 style={{ fontWeight: 700, marginBottom: '1rem' }}>Statut des signalements</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>

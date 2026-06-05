@@ -89,7 +89,7 @@ export default function Blacklist() {
         <button type="button" className="btn btn-primary btn-sm" onClick={applyFilter}>Filtrer</button>
       </section>
 
-      <section className="table-wrap">
+      <section className="table-wrap animate-in" style={{ opacity: 0 }}>
         <table>
           <thead>
             <tr>
@@ -106,8 +106,8 @@ export default function Blacklist() {
             {items.length === 0 && !loading && (
               <tr><td colSpan={7} style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>Aucun résultat</td></tr>
             )}
-            {items.map((b) => (
-              <tr key={b.id}>
+            {items.map((b, i) => (
+              <tr key={b.id} className="animate-in" style={{ animationDelay: `${i * 30}ms` }}>
                 <td>{b.name}</td>
                 <td>{b.phone}</td>
                 <td>{b.city}</td>

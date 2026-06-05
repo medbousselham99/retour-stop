@@ -47,7 +47,17 @@ export default function Dashboard() {
   if (loading && !data) {
     return (
       <AppShell title="Tableau de bord">
-        <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>Chargement...</div>
+        <div className="page-header">
+          <div className="skeleton skeleton-title" />
+          <div className="skeleton skeleton-text" style={{ width: '40%' }} />
+        </div>
+        <div className="kpi-grid">
+          {[1,2,3,4].map((i) => <div key={i} className="card kpi-card animate-in-fade"><div className="skeleton skeleton-card" /></div>)}
+        </div>
+        <div className="grid-2" style={{ marginTop: '1.5rem' }}>
+          <div className="card"><div className="skeleton skeleton-card" style={{ height: 200 }} /></div>
+          <div className="card"><div className="skeleton skeleton-card" style={{ height: 200 }} /></div>
+        </div>
       </AppShell>
     );
   }
@@ -81,7 +91,7 @@ export default function Dashboard() {
       </div>
 
       <div className="kpi-grid">
-        <div className="card kpi-card">
+        <div className="card kpi-card animate-in stagger-1">
           <div className="label">Retours signalés</div>
           <div className="value">{k?.monthlyReturns ?? 0}</div>
           <div className="sub" style={{ display: 'flex', alignItems: 'center', gap: '.25rem' }}>
@@ -89,7 +99,7 @@ export default function Dashboard() {
             {comp ? `${comp.returnsChange > 0 ? '+' : ''}${comp.returnsChange}% vs mois préc.` : '+12% vs mois dernier'}
           </div>
         </div>
-        <div className="card kpi-card">
+        <div className="card kpi-card animate-in stagger-2">
           <div className="label">Clients vérifiés</div>
           <div className="value">{(k?.verifiedClients ?? 0).toLocaleString()}</div>
           <div className="sub" style={{ display: 'flex', alignItems: 'center', gap: '.25rem' }}>
@@ -97,7 +107,7 @@ export default function Dashboard() {
             {comp ? `${comp.verifiedChange > 0 ? '+' : ''}${comp.verifiedChange}% cette semaine` : '+8% cette semaine'}
           </div>
         </div>
-        <div className="card kpi-card">
+        <div className="card kpi-card animate-in stagger-3">
           <div className="label">Alertes risque</div>
           <div className="value">{k?.riskAlerts ?? 0}</div>
           <div className="sub" style={{ display: 'flex', alignItems: 'center', gap: '.25rem' }}>
@@ -105,7 +115,7 @@ export default function Dashboard() {
             {comp ? `${comp.alertsChange > 0 ? '+' : ''}${comp.alertsChange}% vs mois préc.` : '23 aujourd\'hui'}
           </div>
         </div>
-        <div className="card kpi-card">
+        <div className="card kpi-card animate-in stagger-4">
           <div className="label">Économies estimées</div>
           <div className="value" style={{ color: 'var(--teal)' }}>{(k?.savings ?? 0).toLocaleString()} MAD</div>
           <div className="sub" style={{ display: 'flex', alignItems: 'center', gap: '.25rem' }}>
@@ -124,7 +134,7 @@ export default function Dashboard() {
         </Link>
       </div>
 
-      <div className="grid-2">
+      <div className="grid-2 animate-in stagger-5" style={{ opacity: 0 }}>
         <div className="card chart-card">
           <h3 style={{ fontWeight: 700, marginBottom: '1rem' }}>Retours par semaine</h3>
           <RetourChart labels={chart?.labels} data={chart?.values} />
@@ -139,7 +149,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="card" style={{ marginTop: '1.5rem' }}>
+      <div className="card animate-in stagger-6" style={{ marginTop: '1.5rem', opacity: 0 }}>
         <h3 style={{ fontWeight: 700, marginBottom: '1rem' }}>Activité récente</h3>
         {activity.length === 0 && (
           <p style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '1rem' }}>Aucune activité récente</p>

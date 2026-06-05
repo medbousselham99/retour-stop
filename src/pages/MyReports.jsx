@@ -64,7 +64,7 @@ export default function MyReports() {
         <button type="button" className="btn btn-primary btn-sm" onClick={applyFilter}>Filtrer</button>
       </section>
 
-      <section className="table-wrap">
+      <section className="table-wrap animate-in" style={{ opacity: 0 }}>
         <table>
           <thead>
             <tr>
@@ -80,8 +80,8 @@ export default function MyReports() {
             {rows.length === 0 && !loading && (
               <tr><td colSpan={6} style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>Aucun signalement</td></tr>
             )}
-            {rows.map((r) => (
-              <tr key={r.id}>
+            {rows.map((r, i) => (
+              <tr key={r.id} className="animate-in" style={{ animationDelay: `${i * 30}ms` }}>
                 <td>{r.date}</td>
                 <td>{r.phone}</td>
                 <td>{r.city}</td>
